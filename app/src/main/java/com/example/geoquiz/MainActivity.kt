@@ -5,9 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -70,19 +75,55 @@ fun GeoQuizApp(modifier: Modifier = Modifier) {
             )
         }
     ) { innerPadding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color.White),
-            contentAlignment = Alignment.Center
+                .background(Color.White)
+                .padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Вопрос
             Text(
                 text = currentQuestion,
                 textAlign = TextAlign.Center,
                 fontSize = 18.sp,
-                modifier = Modifier.padding(horizontal = 24.dp)
+                modifier = Modifier.padding(bottom = 48.dp)
             )
+
+            // Кнопки
+            QuizButtons()
+        }
+    }
+}
+
+@Composable
+fun QuizButtons() {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row (modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(onClick = { /* без логики */ }) {
+                Text("TRUE")
+            }
+
+            Button(onClick = { /* без логики */ }) {
+                Text("FALSE")
+            }
+        }
+
+        Button(
+            onClick = { /* без логики */ },
+            enabled = false
+        ) {
+            Text("NEXT")
         }
     }
 }
