@@ -1,12 +1,12 @@
 package com.example.geoquiz
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,10 +19,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,7 +68,40 @@ fun GeoQuizApp(modifier: Modifier = Modifier) {
         titleContentColor = Color.White
     )
 
-    val currentQuestion = quizData[0]["question"].toString()
+    var currentQuestionIndex by remember { mutableStateOf(0) }
+    var hasAnswered by remember { mutableStateOf(false) }
+    var correctAnswersCount by remember { mutableStateOf(0) }
+
+    val context = LocalContext.current
+    val currentQuestion = quizData[currentQuestionIndex]["question"].toString()
+    val correctAnswer = quizData[currentQuestionIndex]["answer"] as Boolean
+
+    fun onAnswerSelected(userAnswer: Boolean) {
+        if (!hasAnswered) {
+            hasAnswered = true
+            if (userAnswer == correctAnswer) {
+                correctAnswersCount++
+            }
+        }
+    }
+
+    fun onNextQuestion() {
+        if (hasAnswered) {
+            val nextIndex = currentQuestionIndex + 1
+            if (nextIndex < quizData.size) {
+                currentQuestionIndex = nextIndex
+                hasAnswered = false
+            } else {
+                // Показ результата
+                val message = "Вы ответили правильно на $correctAnswersCount из ${quizData.size} вопросов."
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                // Сброс
+                currentQuestionIndex = 0
+                correctAnswersCount = 0
+                hasAnswered = false
+            }
+        }
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -84,7 +121,6 @@ fun GeoQuizApp(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Вопрос
             Text(
                 text = currentQuestion,
                 textAlign = TextAlign.Center,
@@ -92,36 +128,52 @@ fun GeoQuizApp(modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(bottom = 48.dp)
             )
 
-            // Кнопки
-            QuizButtons()
+            QuizButtons(
+                onTrueClick = { onAnswerSelected(true) },
+                onFalseClick = { onAnswerSelected(false) },
+                onNextClick = { onNextQuestion() },
+                isNextEnabled = hasAnswered,
+                areAnswerButtonsEnabled = !hasAnswered
+            )
         }
     }
 }
 
 @Composable
-fun QuizButtons() {
+fun QuizButtons(
+    onTrueClick: () -> Unit,
+    onFalseClick: () -> Unit,
+    onNextClick: () -> Unit,
+    isNextEnabled: Boolean,
+    areAnswerButtonsEnabled: Boolean // ← новое свойство
+) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row (modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+        Row(
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Button(onClick = { /* без логики */ }) {
+            Button(
+                onClick = onTrueClick,
+                enabled = areAnswerButtonsEnabled // ← отключаем после ответа
+            ) {
                 Text("TRUE")
             }
 
-            Button(onClick = { /* без логики */ }) {
+            Button(
+                onClick = onFalseClick,
+                enabled = areAnswerButtonsEnabled // ← отключаем после ответа
+            ) {
                 Text("FALSE")
             }
         }
 
         Button(
-            onClick = { /* без логики */ },
-            enabled = false
+            onClick = onNextClick,
+            enabled = isNextEnabled
         ) {
             Text("NEXT")
         }
