@@ -14,26 +14,35 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.example.geoquiz.ui.theme.GeoQuizTheme
 
-// Фиолетовый цвет из Material Theme (Purple 700)
 val Purple700 = Color(0xFF6200EE)
+
+val quizData = listOf(
+    mapOf("question" to "Canberra is the capital of Australia.", "answer" to true),
+    mapOf("question" to "The Pacific Ocean is larger than the Atlantic Ocean.", "answer" to true),
+    mapOf("question" to "The Suez Canal connects the Red Sea and the Indian Ocean.", "answer" to false),
+    mapOf("question" to "The source of the Nile River is in Egypt.", "answer" to false),
+    mapOf("question" to "The Amazon River is the longest river in the Americas.", "answer" to true),
+    mapOf("question" to "Lake Baikal is the world's oldest and deepest freshwater lake.", "answer" to true)
+)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         enableEdgeToEdge()
-
         WindowCompat.getInsetsController(window, window.decorView).apply {
-            isAppearanceLightStatusBars = false // белый текст на тёмном фоне
+            isAppearanceLightStatusBars = false
         }
-
         setContent {
             GeoQuizTheme {
                 GeoQuizApp()
@@ -50,6 +59,8 @@ fun GeoQuizApp(modifier: Modifier = Modifier) {
         titleContentColor = Color.White
     )
 
+    val currentQuestion = quizData[0]["question"].toString()
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -63,8 +74,15 @@ fun GeoQuizApp(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color.White)
+                .background(Color.White),
+            contentAlignment = Alignment.Center
         ) {
+            Text(
+                text = currentQuestion,
+                textAlign = TextAlign.Center,
+                fontSize = 18.sp,
+                modifier = Modifier.padding(horizontal = 24.dp)
+            )
         }
     }
 }
